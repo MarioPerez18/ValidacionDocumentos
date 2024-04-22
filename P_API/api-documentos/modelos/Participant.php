@@ -49,6 +49,18 @@ class Participant extends Conectar{
         $sql->execute();
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    
+    //Tomar el ID del participante
+    public function id_participante(){
+        $conectar =  parent::conexion();
+        parent::set_name();
+
+        $sql = "SELECT id FROM participants";
+        $sql = $conectar->prepare($sql);
+        $sql->execute();
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
 

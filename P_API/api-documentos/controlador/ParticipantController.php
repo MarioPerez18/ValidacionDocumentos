@@ -2,8 +2,10 @@
 
 require_once("../Core/conexion.php");
 require_once("../modelos/Participant.php");
-require_once("../Core/DBAbstractLayer.php");
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Api-Key");
 
 class ParticipantController{
 
@@ -22,14 +24,15 @@ class ParticipantController{
         $participante = new Participant();
         if($_SERVER['REQUEST_METHOD'] == "POST"){
             $participante->create($body["apellidoPaterno"], $body["apellidoMaterno"], $body["nombres"], 
-                                           $body["genero"], $body["telefono"], $body["email"],
-                                           $body["institutions_id"] );
+                                           $body["genero"], $body["telefono"], $body["correo"],
+                                           $body["institucion"]);
             //Convirtiendo los datos en formato PHP a formato JSON
             echo json_encode("Insertado correctamente");
             http_response_code(201);
         }
     }
 }
+
 
 $result = new ParticipantController();
 $result->index();
