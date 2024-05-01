@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="../css/estilo.css">
+    <title>Registro</title>
+</head>
+<body>
+  <head>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark p-3">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">
+            <img src="/img/racoon_141849.png" alt="" width="50px" >
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link text-white" href="/index.html">Inicio</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="#">Conocenos</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="/FormRegistro/formulario.html">Registrate</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="/Coordinador/index.html">Coordinador</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav> 
+</head>
+    <main>
+        <div class="contenedor">
+            <div class="mt-5 text-center">
+                <h1>Registrate</h1>
+            </div>
+            <div class="row w-50">
+                <div class="col mt-3">
+
+                  <form class="row g-3">
+                    <div class="col-md-6">
+                      <label for="inputApellidoPaterno" class="form-label">Apellido Paterno</label>
+                      <input type="text" class="form-control" id="inputApellidoPaterno">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="inputApellidoMaterno" class="form-label">Apellido Materno</label>
+                      <input type="text" class="form-control" id="inputApellidoMaterno">
+                    </div>
+                    <div class="col-12">
+                      <label for="inputNombres" class="form-label">Nombres</label>
+                      <input type="text" class="form-control" id="inputNombres" placeholder="">
+                    </div>
+                    <div class="col-12">
+                      <label for="inputCorreo" class="form-label">Email</label>
+                      <input type="email" class="form-control" id="inputCorreo" placeholder="">
+                    </div>
+                    <div class="col-md-4">
+                      <label for="inputTelefono" class="form-label">Teléfono</label>
+                      <input type="tel" class="form-control" id="inputTelefono">
+                    </div>
+                    <div class="col-md-4">
+                      <label for="inputGenero" class="form-label">Género</label>
+                      <select id="inputGenero" class="form-select">
+                        <option selected>Género...</option>
+                        <option value="H">H</option>
+                        <option value="M">M</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label for="inputInstitucion" class="form-label">Institución</label>
+                      <select id="inputInstitucion" class="form-select">
+                        <option selected>Elige tu institución...</option>
+                        
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <button type="button" class="btn btn-primary" id="btn">Registrar</button>
+                    </div>
+                  </form>
+
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="module" src="/js/consumo_api/api.js"></script>
+</body>
+</html>
