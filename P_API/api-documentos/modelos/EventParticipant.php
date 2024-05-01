@@ -1,5 +1,8 @@
 <?php
 
+namespace modelos;
+use Core\Conectar;
+use PDO;
 
 class EventParticipant extends Conectar{
 
@@ -7,7 +10,7 @@ class EventParticipant extends Conectar{
         $conectar =  parent::conexion();
         parent::set_name();
 
-        $sql = "SELECT eventparticipants.id, participants.nombres, participants.apellidoPaterno, participants.apellidoMaterno, events.nombre AS Evento,         events.descripcion, participanttypes.tipo, events.fechaTermino
+        $sql = "SELECT eventparticipants.id, participants.nombres, participants.apellidoPaterno, participants.apellidoMaterno, events.nombre AS Evento, events.descripcion, participanttypes.tipo, events.fechaTermino
         FROM (((eventparticipants
         INNER JOIN participants ON eventparticipants.participants_id = participants.id)
         INNER JOIN events ON eventparticipants.events_id = events.id)

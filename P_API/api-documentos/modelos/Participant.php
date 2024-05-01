@@ -1,5 +1,9 @@
 <?php
 
+namespace modelos;
+use Core\Conectar;
+use PDO;
+
 class Participant extends Conectar{
     
     public function all(){
@@ -12,6 +16,19 @@ class Participant extends Conectar{
         $sql->execute();
     
         return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function all_ids(){
+        $conectar =  parent::conexion();
+    
+        parent::set_name();
+    
+        $sql = "SELECT MAX(id) AS id FROM participants";
+        $sql = $conectar->prepare($sql);
+        $sql->execute();
+    
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+
     }
 
     public function all_participants(){

@@ -1,5 +1,9 @@
 <?php
 
+namespace Core;
+use PDO;
+use Exception;
+
 class Conectar{
     protected $dbh;
 

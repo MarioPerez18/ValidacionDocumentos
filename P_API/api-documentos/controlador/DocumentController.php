@@ -1,11 +1,12 @@
 <?php
 
-//header('Content-Type: application/json');
+namespace controlador;
+use Exception;
+use modelos\Document;
+use controlador\EventParticipantController;
+use QRCode;
+use FPDF;
 
-require_once('../phpqrcode/qrlib.php');
-require_once('../fpdf/fpdf.php');
-require_once("../Core/conexion.php");
-require_once("../modelos/Document.php");
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
@@ -17,11 +18,10 @@ class DocumentController{
     private $passphrase;
     private $cipherMethod;
     public $jsonencript;
-    public $iv;
     private $nombre_archivo;
     private $folio_documento;
+ 
    
-
     public function __construct()
     {
         $cipherMethods = openssl_get_cipher_methods();
@@ -63,6 +63,8 @@ class DocumentController{
         $this->folio_documento = $folio_documento;
     }
 
+    
+
     //método que recibe los datos.
     public function index(){
         $body = json_decode(file_get_contents("php://input"), true);
@@ -84,12 +86,12 @@ class DocumentController{
         }
         //genera una cadena pseudoaleatoria de bytes.
         $inicializationVector = openssl_random_pseudo_bytes($inicializationVectorLength);
-        $this->iv = base64_encode($inicializationVector);
-
-
+        $iv = base64_encode($inicializationVector);
+       
+        
         //crifrar datos.
         $encryptedData = base64_encode(openssl_encrypt($this->jsonencript, $this->getCipherMethod(), $this->getPassphrase(), OPENSSL_RAW_DATA, $inicializationVector));
-        $url = 'http://localhost:8080/api-documentos/controlador/DocumentController.php?cadena='. urlencode($encryptedData) . '&iv=' . urlencode($this->iv);
+        $url = 'http://eventos.itchetumal.edu.mx:8080/validacion/' . urlencode($encryptedData) . '/' . urlencode($iv);
         return $url;
     }
 
@@ -110,7 +112,7 @@ class DocumentController{
     public function generar_qrcode($url){
         //nombre y ruta del png
         $nombre_png = uniqid().'.png';
-        $ruta_png_QRcode = '../static/img'.'/'.$nombre_png;
+        $ruta_png_QRcode = './static/img'.'/'.$nombre_png;
         $this->setFolioDocumento($nombre_png);
         QRcode::png($url, $ruta_png_QRcode);
         //echo $url;
@@ -125,13 +127,13 @@ class DocumentController{
         //nombre y ruta del archivo pdf
         $nombre_pdf = "{$registro["Evento"]}_{$registro["Nombres"]}.pdf";
         $this->setNombreArchivo($nombre_pdf);
-        $ruta_pdf ='../static/PDF/' . $nombre_pdf;
+        $ruta_pdf ='./static/PDF/' . $nombre_pdf;
         //ruta del png
-        $ruta_png = '../static/documento/TEC.png';
+        $ruta_png = './static/documento/TEC.png';
 
         //ruta de los logos del tecnm
-        $ruta_png_itch = '../static/logos_tec/logoItch.png';
-        $ruta_png_tecnm = '../static/logos_tec/tecnm.png';
+        $ruta_png_itch = './static/logos_tec/logoItch.png';
+        $ruta_png_tecnm = './static/logos_tec/tecnm.png';
 
         //crear pdf
         $pdf = new FPDF();
@@ -152,67 +154,56 @@ class DocumentController{
 
         // Guardar el archivo pdf en la carpeta especificada
         $pdf->Output('F', $ruta_pdf, true);
-        //Cell('Largo de la celda(px)', 'Ancho de la celda', 'Txt que contiene la celda', 'Si lleva borde', 'Si hay salto de linea', 'Alineacion'  )
     }  
 
+   
 
     //método que guardará el registro creado.
-    public function store(){
+    public function cifrado(){
         $documents = new Document();
         //Separar el número de la extension png
         $folio_documento = explode('.', $this->getFolioDocumento());
         $numero =  $folio_documento[0];
         //verificar si el archivo existe
-        $generado = (file_exists('../static/PDF/'.$this->getNombreArchivo()) ? True : False );
+        $generado = (file_exists('./static/PDF/'.$this->getNombreArchivo()) ? True : False );
         $entregado = true;
         $archivo = $this->getNombreArchivo();
         $fechaGenerado = date('Y-m-d H:i:s');
         $fechaEntregado = date('Y-m-d H:i:s');
         $documents->create($numero, $generado, $entregado, $archivo, $fechaGenerado, $fechaEntregado);
     }
+
+    //función que se encargará de ejecutar el proceso de cifrado e insertar el registo en la tabla documents.
+    public function store(){
+        $token = getallheaders();
+        if($token["Authorization"] == 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MjMsIm5vbWJyZXMiOiJCZW5qYW1pbiIsInRlbGVmb25vIjoiOTgzMDAxOTA4MiIsImNvcnJlbyI6ImJlbjEwQGdtYWlsLmNvbSJ9.FMtm_O3EKkQkylL7Pc2INOHc7Tq_sA6Kq4Hv03mDFDM'){
+            $this->generar_pdf($this->generar_qrcode($this->cifrar_datos($this->index())));
+            //insertar el registro
+            $this->cifrado();
+            $actualizar_documents_id = new EventParticipantController();
+            $actualizar_documents_id->update();
+            echo json_encode("Documentos Generados");
+            http_response_code(201);
+        }else{
+            http_response_code(401);
+        }
+    }
+
+
+    public function decifrado($cadena, $iv){
+        //Parametros que espera la funcion decifrar_cadena 
+        $cadena_cifrada =  base64_decode(urldecode($cadena));
+        $vector_inicializacion = base64_decode(urldecode($iv));
+
+        $cadena_decifrada = $this->decifrar_cadena($cadena_cifrada, $vector_inicializacion);
+        //$decifrar->documento();
+        header('Content-Type: application/json');
+        http_response_code(200);
+        echo $cadena_decifrada;
+   }
+
 }
 
 
 
-//función que se encargará de ejecutar el proceso de cifrado.
-function cifrado(){
-    $cifrar = new DocumentController();
-    $cifrar->generar_pdf($cifrar->generar_qrcode($cifrar->cifrar_datos($cifrar->index())));
-    //insertar el registro
-    $cifrar->store();
-    echo json_encode("Documento Generado");
-    http_response_code(201);
-}
 
-
-
-//función que se encargará de ejecutar el proceso de decifrado.
-function decifrado(){
-    //Parametros que espera la funcion decifrar_cadena 
-    $cadena_cifrada =  base64_decode($_GET["cadena"]);
-    $vector_inicializacion = base64_decode($_GET["iv"]);
-    $decifrar = new DocumentController();
-    $cadena_decifrada = $decifrar->decifrar_cadena($cadena_cifrada, $vector_inicializacion);
-    //$decifrar->documento();
-    echo $cadena_decifrada;
-}
-
-
-
-//Se validará el verbo usado para determinar que proceso se realizará,
-//si es cifrado o decifrado.
-switch ($_SERVER['REQUEST_METHOD']) {
-    case "GET":
-      header('Content-Type: application/json');
-      decifrado();
-      break;
-    case "POST":
-      cifrado();
-      require_once("../controlador/EventParticipantController.php");
-      break;
-    default:
-      echo "El verbo usado es incorrecto";
-  }
-
-
-?>

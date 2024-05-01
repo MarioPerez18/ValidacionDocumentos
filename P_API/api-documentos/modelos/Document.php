@@ -1,5 +1,9 @@
 <?php
 
+namespace modelos;
+use Core\Conectar;
+use PDO;
+
 class Document extends Conectar
 {
 
